@@ -257,6 +257,9 @@ Route::middleware('demo')->group(function(){
         
                 Route::get('verify/email',[AuthLoginController::class,'emailVerify'])->name('email.verify');
                 Route::post('verify/email',[AuthLoginController::class,'emailVerifyConfirm'])->name('email.verify');
+
+                Route::get('verify/sms',[AuthLoginController::class,'smsVerify'])->name('sms.verify');
+                Route::post('verify/sms',[AuthLoginController::class,'smsVerifyConfirm'])->name('sms.verify');
             });
         
         

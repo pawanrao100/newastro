@@ -109,7 +109,7 @@ class HomeController extends Controller
         return view('frontend.category_details',compact('pageTitle','users'));
     }
 
-    public function userDetails($user)
+    public function userDetails($user) 
     {
        
         $user = User::where('slug',$user)->firstOrFail();

@@ -22,6 +22,7 @@ class User extends Authenticatable
         'fname',
         'lname',
         'username',
+        'mobile',
         'email',
         'password',
         'user_type',

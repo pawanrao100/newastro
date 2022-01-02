@@ -164,6 +164,25 @@ function sendMail($key, array $data, $user)
     }
 }
 
+function sendSms($code, $mobile)
+{
+    $msg = "$code+is+your+OTP+Thanks+for+registering+with+Best+Astro.";
+       // $msg .= '';
+      //  sendMail('VERIFY_EMAIL',['code' => $code],$user);
+    $url = "http://txtguru.in/imobile/api.php?username=pkumar.ie2011&password=95732712&source=Senderid&dmobile=91$mobile&message=$msg";
+    //  $url = urlencode($url);
+      $ch = curl_init();
+ 
+      // Return Page contents.
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+       
+      //grab URL and pass it to the variable.
+      curl_setopt($ch, CURLOPT_URL, $url);
+       
+     $result = curl_exec($ch);
+     return $result;
+}
+
 function content($key)
 {
     return SectionData::where('key', $key)->first();
