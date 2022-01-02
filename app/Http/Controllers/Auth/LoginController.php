@@ -67,7 +67,38 @@ class LoginController extends Controller
        return view('frontend.auth.email',compact('pageTitle'));
     }
 
+    public function smsVerify()
+    {
+       $pageTitle = "Sms Verify";
+
+       return view('frontend.auth.sms',compact('pageTitle'));
+    }
+
     public function emailVerifyConfirm(Request $request)
+    {
+        $request->validate(['code' => 'required']);
+        
+        $user = User::findOrFail(session('user'));
+
+        if($request->code == $user->verification_code){
+            $user->verification_code = null;
+            $user->ev = 1;
+            $user->save();
+
+            Auth::login($user);
+
+            $notify[] = ['success','Successfully verify your account'];
+
+            return redirect()->route('user.dashboard')->withNotify($notify);
+        }
+
+        $notify[] = ['error','Invalid Code'];
+
+        return back()->withNotify($notify);
+    }
+
+
+    public function smsVerifyConfirm(Request $request)
     {
         $request->validate(['code' => 'required']);
         

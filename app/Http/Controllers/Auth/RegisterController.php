@@ -25,6 +25,7 @@ class RegisterController extends Controller
             'user_type' => 'required|in:1,2',
             'fname' => 'required',
             'lname' => 'required',
+            'mobile' => ['required', 'digits:10'],
             'username' => 'required|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|confirmed'
@@ -34,22 +35,19 @@ class RegisterController extends Controller
         ]);
 
         $slug = Str::slug($request->username);
-       
-
         $user = $this->create($request, $slug);
-
         $code = random_int(100000, 999999);
 
-        sendMail('VERIFY_EMAIL',['code' => $code],$user);
+       // sendMail('VERIFY_EMAIL',['code' => $code],$user);
 
+       sendSms($code,$request->mobile);
         session()->put('user', $user->id);
-
         $user->verification_code = $code;
         $user->save();
+        $notify[] = ['success','A code Send to your mobile'];
 
-        $notify[] = ['success','A code Send to your email'];
-
-        return redirect()->route('user.email.verify')->withNotify($notify);
+      //  return redirect()->route('user.email.verify')->withNotify($notify);
+        return redirect()->route('user.sms.verify')->withNotify($notify);
     }
 
     public function dashboard()
@@ -69,6 +67,7 @@ class RegisterController extends Controller
             'fname' => $request->fname,
             'lname' => $request->lname,
             'username' => $request->username,
+            'mobile' => $request->mobile,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'slug' => $slug
