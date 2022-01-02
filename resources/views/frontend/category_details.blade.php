@@ -37,7 +37,7 @@
         <div class="row">
         @foreach ($users as $user)
             
-            <div class="col-lg-3 col-md-4 col-6 mt_30">
+            <div class="col-lg-6 col-md-4 col-6 mt_30">
                 <div class="team-item">
                     <div class="team-photo">
                         <img src="@if ($user->image) {{ getFile('user', $user->image) }} @else {{ getFile('logo', $general->default_image) }} @endif" alt="Team Photo">

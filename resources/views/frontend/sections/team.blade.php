@@ -20,10 +20,10 @@ $featureds = App\Models\User::whereHas('services',function($q){$q->where('status
    <!--Service Start-->
     <div class="team-page pt_30 pb_60">
         <div class="container">
-            <div class="row justify-content-center">
+            <div class="row">
 
                 @forelse ($experts as $expert)
-                    <div class="col-lg-3 col-md-4 col-12 mt_30">
+                    <div class="col-lg-6 col-md-4 col-12 mt_30">
                         <div class="team-item">
                             <div class="team-photo">
                                 <img src="@if($expert->image) {{getFile('user',$expert->image)}} @else {{getFile('logo',$general->default_image)}} @endif" alt="Team Photo">

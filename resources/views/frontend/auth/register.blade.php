@@ -77,9 +77,9 @@
 
                                 </div>
 
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-6"> 
 
-                                    <label for="">@changeLang('Username')<span class="text-danger">*</span></label>
+                                    <label for="">Whatsapp Number<span class="text-danger">*</span></label>
                                     <input type="text" name="username" class="form-control" id="input-field">
 
                                 </div>

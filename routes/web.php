@@ -64,7 +64,7 @@ Route::middleware('demo')->group(function(){
                 Route::get('login/setting', [AdminController::class, 'loginPage'])->name('login.setting');
                 Route::post('login/setting', [AdminController::class, 'loginPageUpdate']);
         
-                Route::post('change/password', [AdminController::class, 'changePassword'])->name('change.password');
+              Route::post('change/password', [AdminController::class, 'changePassword'])->name('change.password');
         
                 // Providers 
         
@@ -323,7 +323,7 @@ Route::middleware('demo')->group(function(){
                     Route::get('withdraw/fetch/{id}',[UserController::class,'withdrawFetch'])->name('withdraw.fetch');
         
                     Route::get('chat/{transaction}',[UserController::class, 'chat'])->name('chat');
-                    Route::post('chat/{transaction}',[UserController::class, 'chatSend'])->name('chat');
+                 Route::post('chat/{transaction}',[UserController::class, 'chatSend'])->name('chat');
                 });
             });
         });

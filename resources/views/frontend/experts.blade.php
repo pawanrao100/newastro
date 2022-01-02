@@ -7,7 +7,7 @@
 
 @endphp
 <!--Banner Start-->
-<div class="banner-area flex" style="background-image:url({{getFile('breadcrumb',@$content->data->image)}});">
+  <div class="banner-area flex" style="background-image:url({{getFile('breadcrumb',@$content->data->image)}});">
     <div class="container">
         <div class="row">
             <div class="col-md-12">

@@ -38,7 +38,7 @@ class HomeController extends Controller
 
         }
 
-        return view('frontend.home',compact('pageTitle','sections' ));
+      return view('frontend.home',compact('pageTitle','sections' ));
     }
 
     public function pages(Request $request)
@@ -158,7 +158,7 @@ class HomeController extends Controller
     {
         $pageTitle = "All Categories";
 
-        $categories = Category::where('status',1)->whereHas('services.user',function($q){$q->where('status',1)->serviceProvider();})->latest()->paginate(9);
+     $categories = Category::where('status',1)->whereHas('services.user',function($q){$q->where('status',1)->serviceProvider();})->latest()->paginate(9);
 
 
        return view('frontend.all_category',compact('pageTitle','categories'));
@@ -267,9 +267,7 @@ class HomeController extends Controller
 
     }
     
-
-
-    public function writeReview(Request $request,Service $service)
+   public function writeReview(Request $request,Service $service)
     {
         $request->validate([
             'review' => 'required|integer|between:1,5',

@@ -3,9 +3,9 @@
     $content = content('category.content');
 
     $categories = App\Models\Category::whereHas('services',function($q){$q->where('status',1);})->whereHas('services.user')->where('status',1)->latest()->take(6)->get();
-
-@endphp
-@php
+	$experts = App\Models\User::where('user_type', 2)
+    ->take(6)
+    ->get();
 
 $content = content('banner.content');
 
@@ -13,6 +13,12 @@ $categories1 = App\Models\Category::where('status', 1)
     ->orderBy('name','ASC')
     ->take(6)
     ->get();
+	
+$featureds = App\Models\User::whereHas('services',function($q){$q->where('status',1)->where('admin_approval',1);})->where('status', 1)
+    ->serviceProvider()
+    ->where('featured', 1)
+    ->get();
+
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -48,21 +54,21 @@ $categories1 = App\Models\Category::where('status', 1)
 		<div class="container-fluid">
 		<div id="logo">
 			<a href="{{ route('home') }}">
-				<img src="http://tradewavetrading.com/best-astro/html/img/logo.png"  height="55" alt="Best-astro.com" class="logo_normal">
+				<img src="{{ getFile('logo', @$general->logo) }}"  height="55" alt="Best-astro.com" class="logo_normal">
 				<img src="http://tradewavetrading.com/best-astro/html/img/logo_sticky.png" height="45" alt="Best-astro.com" class="logo_sticky">
 			</a>
 		</div>
 		<div class="st_search"><form action="{{route('experts.search')}}" method="get">
 			<input class="form-control" type="text" name="search" placeholder="Find a professional...">
-
-
-		 </form></div>
+			<input class="form-control" name="category" type="hidden">
+        </form>
+		</div>
 		<nav class="main-menu">
 			<div id="header_menu">
 				<a href="#0" class="open_close">
 					<i class="icon_close"></i><span>Menu</span>
 				</a>
-				<a href="index.html"><img src="http://tradewavetrading.com/best-astro/html/img/logo.png"  height="45" alt=""></a>
+				<a href="{{ route('home') }}"><img src="{{ getFile('logo', @$general->logo) }}"  height="45" alt=""></a>
 			</div>
 			<ul>
 
@@ -80,9 +86,12 @@ $categories1 = App\Models\Category::where('status', 1)
 			</ul>
 		</nav>
 		<ul id="top_menu">
-			 
-			<li><a href="#sign-in-dialog" id="sign-in" class="btn_access">Log In</a></li>
-			<li><a href="register.html" class="btn_access green">Sign Up </a></li>
+		@auth
+                    <li><a href="{{ route('user.dashboard') }}">@changeLang('Dashboard')</a></li>
+                @else
+			<li><a href="{{ route('user.login') }}" id="" class="btn_access">Log In</a></li>
+			<li><a href="{{ route('user.register') }}" class="btn_access green">Sign Up </a></li>
+			@endauth
 		</ul>
 		<!-- /top_menu -->
 		<a href="#0" class="open_close">
@@ -102,13 +111,16 @@ $categories1 = App\Models\Category::where('status', 1)
 		                    <div class="col-xl-6 col-lg-6 col-md-5 text-left">
 		                        <h1>{{ __(@$content->data->title) }}</h1>
 		                        <p>{{ __(@$content->data->sub_title) }} </p>
-		                        <form method="post" action="listing.html">
+		                        <form method="get" action="{{route('experts.search')}}" >
 		                            <div class="d-flex">
 		                                <div class="row no-gutters custom-search-input">
 		                                    <div class="col-md-9">
 		                                        <div class="form-group">
 		                                            <input class="form-control" name="search" type="text" placeholder="Find a professional...">
-		                                        </div>
+		                                        
+		                                            <!-- <input class="form-control" name="location" type="hidden"> -->
+													<input class="form-control" name="category" type="hidden">
+												</div>
 		                                    </div>
 		                                    <div class="col-md-3">
 		                                        <input type="submit" value="Find">
@@ -131,7 +143,7 @@ $categories1 = App\Models\Category::where('status', 1)
 							<div class="col-lg-6 col-md-6 text-left bdr-l ">
 		                        <h1>Are you an Astro Expert ?</h1>
 		                        <p>Book now and list your service for Free!</p>
-								<a href="register.html" class="btn_1 medium w-92">List your services for Free</a>
+								<a href="{{ route('user.register') }}" class="btn_1 medium w-92">List your services for Free</a>
 								</div>
 
 		                </div>
@@ -155,7 +167,7 @@ $categories1 = App\Models\Category::where('status', 1)
 	            </div>
 	            <!-- /main_title -->
 	            <div class="owl-carousel owl-theme categories_carousel">
-                @foreach ($categories as $category)
+                @foreach ($categories1 as $category)
 					<div class="item">
 						<a href="{{route('category.details',Str::slug($category->name))}}">
 							<span>98</span>
@@ -179,17 +191,18 @@ $categories1 = App\Models\Category::where('status', 1)
 	            <p>Lorem Ipsum is simply dummy text of the printing.</p>
 	        </div>
 	        <div class="row add_bottom_15">
+			@forelse ($experts as $expert)
 	            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
 	                <div class="strip">
 	                    <figure>
 	                        <a href="#0" class="wish_bt"><i class="icon_heart"></i></a>
 							<div class="score"><strong>9.5</strong></div>
-	                        <img src="img/lazy-placeholder.png" data-src="img/professionals_photos/home_1.jpg" class="img-fluid lazy" alt="">
-	                        <a href="detail-page.html" class="strip_info">
+	                        <img src="@if($expert->image) {{getFile('user',$expert->image)}} @else {{getFile('logo',$general->default_image)}} @endif" data-src="@if($expert->image) {{getFile('user',$expert->image)}} @else {{getFile('logo',$general->default_image)}} @endif" class="img-fluid lazy" alt="">
+	                        <a href="{{ route('service.provider.details', $expert->slug) }}" class="strip_info">
 	                            <div class="item_title">
-	                                <h3>Dr. Maria Cornfield <small>2+ Exp.</small></h3>
+	                                <h3>{{ __(ucwords($expert->fullname)) }} <small>2+ Exp.</small></h3>
 									 
-	                                <small>Astrologer</small>
+	                                <small>{{ $expert->designation }}</small>
 	                            </div>
 	                        </a>
 	                    </figure>
@@ -203,142 +216,39 @@ $categories1 = App\Models\Category::where('status', 1)
 	                    </ul>
 	                </div>
 	            </div>
-	            <!-- /strip grid -->
-	            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-	                <div class="strip">
-	                    <figure>
-	                        <a href="#0" class="wish_bt"><i class="icon_heart"></i></a>
-							<div class="score"><strong>9.5</strong></div>
-	                        <img src="img/lazy-placeholder.png" data-src="img/professionals_photos/home_3.jpg" class="img-fluid lazy" alt="">
-	                        <a href="detail-page.html" class="strip_info">
-	                            <div class="item_title">
-	                                <h3>Lucy Shoemaker <small>2+ Exp.</small></h3>
-	                                <small>Astrologer</small>
+				@empty
+				<div class="item_title">
+	                                <h3>Sorry We could not find any data</h3>
+									 
+	                                
 	                            </div>
-	                        </a>
-	                    </figure>
-	                    <ul>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Appointment"><i class="icon-users"></i></a></li>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Chat"><i class="icon-chat"></i></a></li>
-	                        <li>
-	                           <div ><span>Avg price $35 Hr.</span></div>
-	                        </li>
-	                    </ul>
-	                </div>
-	            </div>
-	            <!-- /strip grid -->
-	            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-	                <div class="strip">
-	                    <figure>
-	                        <a href="#0" class="wish_bt"><i class="icon_heart"></i></a>
-							<div class="score"><strong>9.5</strong></div>
-	                        <img src="img/lazy-placeholder.png" data-src="img/professionals_photos/home_3.jpg" class="img-fluid lazy" alt="">
-	                        <a href="detail-page.html" class="strip_info">
-	                            <div class="item_title">
-	                                <h3>Prof. Luke Lachinet <small>9+ Exp.</small></h3>
-	                                <small>Astrologer</small>
-	                            </div>
-	                        </a>
-	                    </figure>
-	                    <ul>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Appointment"><i class="icon-users"></i></a></li>
-	                      
-	                        <li>
-	                           <div ><span>Avg price $35 Hr.</span></div>
-	                        </li>
-	                    </ul>
-	                </div>
-	            </div>
-	            <!-- /strip grid -->
-	            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-	                <div class="strip">
-	                    <figure>
-	                        <a href="#0" class="wish_bt"><i class="icon_heart"></i></a><div class="score"><strong>9.5</strong></div>
-	                        <img src="img/lazy-placeholder.png" data-src="img/professionals_photos/home_4.jpg" class="img-fluid lazy" alt="">
-	                        <a href="detail-page.html" class="strip_info">
-	                            <div class="item_title">
-	                                <h3>Dr. Marta Rainwater <small>5+ Exp.</small></h3>
-	                                <small>Astrologer</small>
-	                            </div>
-	                        </a>
-	                    </figure>
-	                    <ul>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Chat"><i class="icon-chat"></i></a></li>
-	                      
-	                        <li>
-	                           <div ><span>Avg price $35 Hr.</span></div>
-	                        </li>
-	                    </ul>
-	                </div>
-	            </div>
-	            <!-- /strip grid -->
-	            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-	                <div class="strip">
-	                    <figure>
-	                        <a href="#0" class="wish_bt"><i class="icon_heart"></i></a><div class="score"><strong>9.5</strong></div>
-	                        <img src="img/lazy-placeholder.png" data-src="img/professionals_photos/home_5.jpg" class="img-fluid lazy" alt="">
-	                        <a href="detail-page.html" class="strip_info">
-	                            <div class="item_title">
-	                                <h3>Tom Manzone <small>6+ Exp.</small></h3>
-	                                <small>Astrologer</small>
-	                            </div>
-	                        </a>
-	                    </figure>
-	                    <ul>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Chat"><i class="icon-chat"></i></a></li>
-	                      
-	                        <li>
-	                           <div ><span>Avg price $35 Hr.</span></div>
-	                        </li>
-	                    </ul>
-	                </div>
-	            </div>
-	            <!-- /strip grid -->
-	            <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6">
-	                <div class="strip">
-	                    <figure>
-	                        <a href="#0" class="wish_bt"><i class="icon_heart"></i></a><div class="score"><strong>9.5</strong></div>
-	                        <img src="img/lazy-placeholder.png" data-src="img/professionals_photos/home_6.jpg" class="img-fluid lazy" alt="">
-	                        <a href="detail-page.html" class="strip_info">
-	                            <div class="item_title">
-	                                <h3>Carl Cornfield <small>12+ Exp.</small></h3>
-	                                <small>Astrologer</small>
-	                            </div>
-	                        </a>
-	                    </figure>
-	                    <ul>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Appointment"><i class="icon-users"></i></a></li>
-	                        <li><a href="#0" class="tooltip-1" data-toggle="tooltip" data-placement="bottom" title="Available Chat"><i class="icon-chat"></i></a></li>
-	                        <li>
-	                           <div ><span>Avg price $35 Hr.</span></div>
-	                        </li>
-	                    </ul>
-	                </div>
-	            </div>
-	            <!-- /strip grid -->
+				@endforelse
+	         
 	        </div>
 	        <!-- /row -->
-	        <p class="text-center add_bottom_30"><a href="listing.html" class="btn_1 medium">View All</a></p>
+	        <p class="text-center add_bottom_30"><a href="{{ route('home') }}/experts" class="btn_1 medium">View All</a></p>
 	        <div class="row">
 	            <div class="col-12">
 	                <div class="main_title version_2">
 	                    <span><em></em></span>
 	                    <h2>Weekly Rate Offer</h2>
 	                    <p>Lorem Ipsum is simply dummy text of the printing.</p>
-	                    <a href="#0">View All</a>
+	                    <a href="{{ route('home') }}/experts">View All</a>
 	                </div>
 	            </div>
+				@foreach ($featureds as $expert)
 	            <div class="col-md-6">
 	                <div class="list_home">
 	                    <ul>
+						
 	                        <li>
-	                            <a href="detail-page.html">
+	                            <a href="{{ route('service.provider.details',$expert->slug) }}">
 	                                <figure>
-	                                    <img src="img/professional_list_placeholder.png" data-src="img/professional_list_1.jpg" alt="" class="lazy">
+	                                    <img src="@if($expert->image) {{getFile('user',$expert->image)}} @else {{getFile('logo',$general->default_image)}} @endif" data-src="@if($expert->image) {{getFile('user',$expert->image)}} @else {{getFile('logo',$general->default_image)}} @endif" alt="" class="lazy">
 	                                </figure>
 	                                <div class="score"><strong>9.5</strong></div>
-	                                <em>Astrologer</em>
-	                                <h3>Laura Marting</h3>
+	                                <em>{{ $expert->designation }}</em>
+	                                <h3>{{ __(ucwords($expert->fullname)) }}</h3>
 	                                <small>8 Patriot Square E2 9NF</small>
 	                                <ul>
 	                                    <li><span class="ribbon off">-30%</span></li>
@@ -346,60 +256,11 @@ $categories1 = App\Models\Category::where('status', 1)
 	                                </ul>
 	                            </a>
 	                        </li>
-	                        <li>
-	                            <a href="detail-page.html">
-	                                <figure>
-	                                    <img src="img/professional_list_placeholder.png" data-src="img/professional_list_2.jpg" alt="" class="lazy">
-	                                </figure>
-	                                <div class="score"><strong>8.0</strong></div>
-	                                <em>Astrologer</em>
-	                                <h3>Anna Smith</h3>
-	                                <small>27 Old Gloucester St, 4563</small>
-	                                <ul>
-	                                    <li><span class="ribbon off">-40%</span></li>
-	                                    <li>Average price $30</li>
-	                                </ul>
-	                            </a>
-	                        </li>
+						
 	                    </ul>
 	                </div>
 	            </div>
-	            <div class="col-md-6">
-	                <div class="list_home">
-	                    <ul>
-	                        <li>
-	                            <a href="detail-page.html">
-	                                <figure>
-	                                    <img src="img/professional_list_placeholder.png" data-src="img/professional_list_3.jpg" alt="" class="lazy">
-	                                </figure>
-	                                <div class="score"><strong>9.5</strong></div>
-	                                <em>Astrologer</em>
-	                                <h3>Dr. Stefany Lens</h3>
-	                                <small>27 Old Gloucester St, 4563</small>
-	                                <ul>
-	                                    <li><span class="ribbon off">-30%</span></li>
-	                                    <li>Average price $20</li>
-	                                </ul>
-	                            </a>
-	                        </li>
-	                        <li>
-	                            <a href="detail-page.html">
-	                                <figure>
-	                                    <img src="img/professional_list_placeholder.png" data-src="img/professional_list_4.jpg" alt="" class="lazy">
-	                                </figure>
-	                                <div class="score"><strong>8.0</strong></div>
-	                                <em>Astrologer</em>
-	                                <h3>Lucy Clarks</h3>
-	                                <small>22 Hertsmere Rd E14 4ED</small>
-	                                <ul>
-	                                    <li><span class="ribbon off">-50%</span></li>
-	                                    <li>Average price $35</li>
-	                                </ul>
-	                            </a>
-	                        </li>
-	                    </ul>
-	                </div>
-	            </div>
+				@endforeach
 	        </div>
 	    </div>
 	    <!-- /container -->
